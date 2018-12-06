@@ -20,7 +20,8 @@ import qualified AST.Utils.Type as Type
 import qualified Elm.Compiler.Type as T
 import qualified Elm.Interface as I
 import qualified Elm.Name as N
-
+import Debug.Trace
+import Text.Show
 
 
 -- EXTRACTION
@@ -121,8 +122,8 @@ extractTransitive interfaces (Deps seenAliases seenUnions) (Deps nextAliases nex
 extractAlias :: I.Interfaces -> Opt.Global -> Extractor T.Alias
 extractAlias interfaces (Opt.Global home name) =
   let
-    (I.Interface _ _ aliases _) = interfaces ! home
-    (Can.Alias args aliasType) = I.toAliasInternals (aliases ! name)
+    (I.Interface _ _ aliases _) = interfaces ! home --(traceShow (N.toString home) home)
+    (Can.Alias args aliasType) = I.toAliasInternals (aliases ! traceShow (N.toString name) name)
   in
   T.Alias (toPublicName home name) args <$> extract aliasType
 
@@ -134,9 +135,9 @@ extractUnion interfaces (Opt.Global home name) =
     else
       let
         pname = toPublicName home name
-        unions = I._unions (interfaces ! home)
+        unions = I._unions (interfaces ! home) --traceShow (N.toString home) home)
       in
-      case I.toUnionInternals (unions ! name) of
+      case I.toUnionInternals (unions ! traceShow (N.toString name) name) of
         Can.Union vars ctors _ _ ->
           T.Union pname vars <$> traverse extractCtor ctors
 
